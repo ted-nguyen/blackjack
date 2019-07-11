@@ -1,2 +1,2 @@
 # blackjack
-Simple Blackjack game
+The player will
