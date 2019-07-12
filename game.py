@@ -57,6 +57,8 @@ class Deck:
 class Hand:
     """ Hand class to hold Card objects from the Deck class. """
 
+    global values
+
     def __init__(self):
         """ Starting Hand has no cards, so Hand has no value """
 
@@ -70,21 +72,49 @@ class Hand:
     def add_card(self, card):
         """ Add a card to Hand """
 
+        # Add the card to the player's hand list
         self.cards.append(card)
-        self.value = card.
+        # Store the value of the card
+        self.value += values[card.rank]
 
     def adjust_for_ace(self):
         pass
 
 class Chips:
+    """ Keeps track of the Player's starting chips, bets, and ongoing wins """
 
     def __init__(self):
+        self.total = 100
+        self.bet = 0
+
+    def win_bet(self):
         pass
 
+    def lose_bet(self):
+        pass
+
+def take_bet():
+    """ Asks the user for an integer value to bet. Will keep asking until an integer is inputted """
+
+    while True:
+        try:
+            ans = int(input("How much do you want to bet this round: "))
+        except ValueError:
+            print("That isn't a number. Try again.")
+            continue
+        else:
+            print("Thank you for placing your bet")
+            break
 
 my_deck = Deck()
 my_deck.shuffle()
-new_hand = my_deck.deal()
-
-for card in new_hand:
+dealer = my_deck.deal()
+#print(dealer[0].rank)
+for card in dealer:
     print(card)
+
+my_hand = Hand()
+my_hand.add_card(dealer[0])
+print(my_hand.value)
+
+take_bet()
