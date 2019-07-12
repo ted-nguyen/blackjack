@@ -45,14 +45,9 @@ class Deck:
         random.shuffle(self.deck)
 
     def deal(self):
-        """ Removes the top 4 cards of the deck """
+        """ Removes the card at the top of the deck """
 
-        dealt_cards = []
-
-        for i in range(0, 4):
-            dealt_cards.append(self.deck.pop())
-
-        return dealt_cards
+        return self.deck.pop()
 
 class Hand:
     """ Hand class to hold Card objects from the Deck class. """
@@ -77,44 +72,139 @@ class Hand:
         # Store the value of the card
         self.value += values[card.rank]
 
+        # Check for aces
+        if card.rank == 'Ace':
+            self.aces += 1
+
     def adjust_for_ace(self):
-        pass
+
+        # If total value is greater than 21 and there is 1 or more aces still
+        # Then change the value of the ace from 11 to 1
+        while self.value > 21 and self.aces > 0:
+            self.value -= 10
+            self.aces -= 1
+
 
 class Chips:
     """ Keeps track of the Player's starting chips, bets, and ongoing wins """
 
-    def __init__(self):
-        self.total = 100
+    def __init__(self, total = 100):
+        # This value can be changed; player starts with 100 chips
+        self.total = total
+        # How much is being bet
         self.bet = 0
 
     def win_bet(self):
-        pass
+        """ Adds the bet amount to their winnings """
+        self.total += self.bet
 
     def lose_bet(self):
-        pass
+        """ Takes the bet amount from their winnings """
+        self.total -= self.bet
 
-def take_bet():
+def take_bet(chips):
     """ Asks the user for an integer value to bet. Will keep asking until an integer is inputted """
 
     while True:
         try:
-            ans = int(input("How much do you want to bet this round: "))
+            chips.bet = int(input("How much do you want to bet: "))
         except ValueError:
             print("That isn't a number. Try again.")
             continue
         else:
-            print("Thank you for placing your bet")
-            break
+            if chips.bet > chips.total:
+                print(f"You don't have enough chips to bet that much! You only have {chips.total}")
+            else:
+                print(f"You bet ${chips.bet}")
+                break
 
-my_deck = Deck()
-my_deck.shuffle()
-dealer = my_deck.deal()
-#print(dealer[0].rank)
-for card in dealer:
-    print(card)
+def hit(deck, hand):
+    """ Deals a card to the Hand """
 
-my_hand = Hand()
-my_hand.add_card(dealer[0])
-print(my_hand.value)
+    # Deal a card and add it to their hand
+    one_card = deck.deal()
+    hand.add_card(one_card)
 
-take_bet()
+    # Readjust the hand's value if their hand exceeds 21 and they have an ace
+    hand.adjust_for_ace()
+
+def hit_or_stay(deck, hand):
+    """ If they Player decides to hit, calls the hit() function; otherwise playing is set to False """
+
+    global playing
+
+    while True:
+        ans = input("Would you like to hit or stay?(h/s) ")
+
+        if ans.lower() == 'h' or ans.lower() == 'hit':
+            print("You decided to hit!\n")
+            hit(deck, hand)
+            playing = True
+        elif ans.lower() == 's' or ans.lower() == 'stay':
+            print("You decided to stay! Feeling lucky?\n")
+            playing = False
+        else:
+            print("Please hit (h) or stay (s).")
+            continue
+
+        break
+
+def show_some(player, dealer):
+    """ Only shows the dealer's second card and the Player's card """
+
+    print("Dealer's Hand:")
+    # show the second card
+    print(dealer.cards[1])
+    print(f"Point(s): {dealer.value}")
+
+    print("Player's Hand:")
+    # show all the player's cards
+    for card in player.cards:
+        print(card)
+    print(f"Point(s)): {player.value}")
+
+def show_all(player, dealer):
+    """ Shows everyone's cards """
+
+    print("Dealer's Hand:")
+    for card in dealer.cards:
+        print(card)
+    print(f"Point(s): {dealer.value}")
+
+    print("\nPlayer's Hand:")
+    for card in player.cards:
+        print(card)
+    print(f"Point(s): {player.value}")
+
+def player_busts(player, dealer, chips):
+    print("Player BUSTED! Better luck next time!")
+    chips.lose_bet()
+
+def player_wins(player, dealer, chips):
+    print("Player WON!")
+    chips.win_bet()
+
+def dealer_busts(player, dealer, chips):
+    print("Dealer BUSTED! Player won their bet!")
+    chips.win_bet()
+
+def dealer_wins(player, dealer, chips):
+    print("Dealer WON! Player lost their bet.")
+    chips.lose_bet()
+
+def push(player, dealer):
+    """ Prints a statement that the game was a tie """
+
+    print("Player and Dealer tied! What are the odds?!")
+
+game_deck = Deck()
+player_hand = Hand()
+dealer_hand = Hand()
+game_deck.shuffle()
+
+
+#the_chips = Chips()
+#take_bet(the_chips)
+
+hit_or_stay(game_deck, player_hand)
+show_all(player_hand, dealer_hand)
