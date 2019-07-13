@@ -4,7 +4,7 @@ import random
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
 ranks = ('Ace', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King')
 # A dictionary is used to set values to each rank
-values = {'Ace': [1, 11], 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eight': 8, 'Nine': 9,
+values = {'Ace': 11, 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eight': 8, 'Nine': 9,
 'Ten': 10, 'Jack': 10, 'Queen': 10, 'King': 10}
 
 # Boolean value to keep track of while loops
@@ -113,9 +113,9 @@ def take_bet(chips):
             continue
         else:
             if chips.bet > chips.total:
-                print(f"You don't have enough chips to bet that much! You only have {chips.total}")
+                print(f"You don't have enough chips to bet that much! You only have {chips.total}.")
             else:
-                print(f"You bet ${chips.bet}")
+                print(f"You bet {chips.bet} of your chips.")
                 break
 
 def hit(deck, hand):
@@ -152,21 +152,22 @@ def hit_or_stay(deck, hand):
 def show_some(player, dealer):
     """ Only shows the dealer's second card and the Player's card """
 
-    print("Dealer's Hand:")
-    # show the second card
+    print("\nDealer's Hand:")
+    # hide the first card and show the second card
+    print("??????")
     print(dealer.cards[1])
-    print(f"Point(s): {dealer.value}")
+    print(f"Point(s): ????")
 
-    print("Player's Hand:")
+    print("\nPlayer's Hand:")
     # show all the player's cards
     for card in player.cards:
         print(card)
-    print(f"Point(s)): {player.value}")
+    print(f"Point(s): {player.value}")
 
 def show_all(player, dealer):
     """ Shows everyone's cards """
 
-    print("Dealer's Hand:")
+    print("\nDealer's Hand:")
     for card in dealer.cards:
         print(card)
     print(f"Point(s): {dealer.value}")
@@ -197,14 +198,79 @@ def push(player, dealer):
 
     print("Player and Dealer tied! What are the odds?!")
 
-game_deck = Deck()
-player_hand = Hand()
-dealer_hand = Hand()
-game_deck.shuffle()
+# The game begins here!
+if __name__ == "__main__":
 
+    # Set up the Player's chips
+    # Can change the number of starting chips by putting a number in for the argument
+    # Default is 100
+    player_chips = Chips()
+    
+    # Keeps looping unless the player decides to stop playing again
+    while True:
+        # Welcome to Blackjack
+        print("Welcome to Blackjack!")
 
-#the_chips = Chips()
-#take_bet(the_chips)
+        # Set up a new deck, the player and dealer's hand, and shuffle the deck
+        game_deck = Deck()
+        player_hand = Hand()
+        dealer_hand = Hand()
+        game_deck.shuffle()
 
-hit_or_stay(game_deck, player_hand)
-show_all(player_hand, dealer_hand)
+        # Deal two cards to each person
+        player_hand.add_card(game_deck.deal())
+        player_hand.add_card(game_deck.deal())
+
+        dealer_hand.add_card(game_deck.deal())
+        dealer_hand.add_card(game_deck.deal())
+
+        # Prompt the player to place a bet
+        take_bet(player_chips)
+
+        # Show one of the dealer's cards and the player's cards
+        show_some(player_hand, dealer_hand)
+
+        # Keep playing until the player stops hitting or busts
+        while playing:
+            # Prompt the player to hit or stay
+            hit_or_stay(game_deck, player_hand)
+
+            # Show one of the dealer's cards and the player's cards
+            show_some(player_hand, dealer_hand)
+
+            # If the player's hand exceed's 21, then they busted
+            if player_hand.value > 21:
+                player_busts(player_hand, dealer_hand, player_chips)
+                break
+
+        # If the player hasn't busted (decided to stay), then play the Dealer's hand until they reach 17 or greater
+        if player_hand.value <= 21:
+            while dealer_hand.value < 17:
+                # Show all the dealer's cards and the player's card
+                show_all(player_hand, dealer_hand)
+
+                # Dealer keeps hitting...
+                hit(game_deck, dealer_hand)
+
+            # Show everyone's final hand
+            show_all(player_hand, dealer_hand)
+
+            # Check win conditions
+            if dealer_hand.value > 21:
+                dealer_busts(player_hand, dealer_hand, player_chips)
+            elif player_hand.value > dealer_hand.value:
+                player_wins(player_hand, dealer_hand, player_chips)
+            elif player_hand.value < dealer_hand.value:
+                dealer_wins(player_hand, dealer_hand, player_chips)
+            elif player_hand.value == dealer_hand.value:
+                push(player_hand, dealer_hand)
+
+        # Show how many chips the player has
+        print(f"You have {player_chips.total} chips now!")
+
+        # Ask the player if they want to play again
+        play_again = input("Would you like to play again (y/n)? ")
+        if play_again == 'y' or play_again == 'Y':
+            continue
+        else:
+            break
