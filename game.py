@@ -1,4 +1,8 @@
 import random
+import time
+# Needed for clear() function
+from os import system, name
+from time import sleep
 
 # GLOBAL VARIABLES
 suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
@@ -100,7 +104,13 @@ class Chips:
 
     def lose_bet(self):
         """ Takes the bet amount from their winnings """
-        self.total -= self.bet
+        losses = self.total - self.bet
+
+        # Ensure the total never goes below 0
+        self.total = max(0, losses)
+
+        # This actually doesn't matter because you can never bet more than the total number of chips you have
+        # But I left it in for fun :)
 
 def take_bet(chips):
     """ Asks the user for an integer value to bet. Will keep asking until an integer is inputted """
@@ -114,6 +124,8 @@ def take_bet(chips):
         else:
             if chips.bet > chips.total:
                 print(f"You don't have enough chips to bet that much! You only have {chips.total}.")
+            elif chips.bet < 0:
+                print("You can't bet a negative amount of chips!")
             else:
                 print(f"You bet {chips.bet} of your chips.")
                 break
@@ -152,13 +164,13 @@ def hit_or_stay(deck, hand):
 def show_some(player, dealer):
     """ Only shows the dealer's second card and the Player's card """
 
-    print("\nDealer's Hand:")
+    print("\nDEALER HAND:")
     # hide the first card and show the second card
     print("??????")
     print(dealer.cards[1])
     print(f"Point(s): ????")
 
-    print("\nPlayer's Hand:")
+    print("\nPLAYER HAND:")
     # show all the player's cards
     for card in player.cards:
         print(card)
@@ -167,12 +179,12 @@ def show_some(player, dealer):
 def show_all(player, dealer):
     """ Shows everyone's cards """
 
-    print("\nDealer's Hand:")
+    print("\nDEALER HAND:")
     for card in dealer.cards:
         print(card)
     print(f"Point(s): {dealer.value}")
 
-    print("\nPlayer's Hand:")
+    print("\nPLAYER HAND:")
     for card in player.cards:
         print(card)
     print(f"Point(s): {player.value}")
@@ -198,6 +210,17 @@ def push(player, dealer):
 
     print("Player and Dealer tied! What are the odds?!")
 
+def clear():
+    """
+        Clears the terminal - works for Windows, Mac, and Linux
+    """
+    # For windows
+    if name == 'nt':
+        _ = system('cls')
+    # For mac and linux(here, os.name is 'posix')
+    else:
+        _ = system('clear')
+
 # The game begins here!
 if __name__ == "__main__":
 
@@ -205,7 +228,7 @@ if __name__ == "__main__":
     # Can change the number of starting chips by putting a number in for the argument
     # Default is 100
     player_chips = Chips()
-    
+
     # Keeps looping unless the player decides to stop playing again
     while True:
         # Welcome to Blackjack
@@ -251,8 +274,12 @@ if __name__ == "__main__":
 
                 # Dealer keeps hitting...
                 hit(game_deck, dealer_hand)
+                print("Dealer hit...")
+                time.sleep(1.5)
 
+            clear()
             # Show everyone's final hand
+            print("FINAL HANDS", end = "")
             show_all(player_hand, dealer_hand)
 
             # Check win conditions
@@ -266,11 +293,17 @@ if __name__ == "__main__":
                 push(player_hand, dealer_hand)
 
         # Show how many chips the player has
-        print(f"You have {player_chips.total} chips now!")
+        print(f"\nYou have {player_chips.total} chips now!")
 
         # Ask the player if they want to play again
         play_again = input("Would you like to play again (y/n)? ")
         if play_again == 'y' or play_again == 'Y':
+
+            # Check if the player has any chips left
+            if player_chips <= 0:
+                print("Sorry! You have no chips left.")
+                break
+
             continue
         else:
             break
