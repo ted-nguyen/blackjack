@@ -233,7 +233,6 @@ if __name__ == "__main__":
     while True:
         # Welcome to Blackjack
         print("Welcome to Blackjack!")
-
         # Set up a new deck, the player and dealer's hand, and shuffle the deck
         game_deck = Deck()
         player_hand = Hand()
@@ -269,17 +268,17 @@ if __name__ == "__main__":
         # If the player hasn't busted (decided to stay), then play the Dealer's hand until they reach 17 or greater
         if player_hand.value <= 21:
             while dealer_hand.value < 17:
+                time.sleep(1.5)
                 # Show all the dealer's cards and the player's card
                 show_all(player_hand, dealer_hand)
 
                 # Dealer keeps hitting...
                 hit(game_deck, dealer_hand)
                 print("Dealer hit...")
-                time.sleep(1.5)
 
-            clear()
+            #clear()
             # Show everyone's final hand
-            print("FINAL HANDS", end = "")
+            print("\n***FINAL HAND***")
             show_all(player_hand, dealer_hand)
 
             # Check win conditions
@@ -300,10 +299,11 @@ if __name__ == "__main__":
         if play_again == 'y' or play_again == 'Y':
 
             # Check if the player has any chips left
-            if player_chips <= 0:
+            if player_chips.total <= 0:
                 print("Sorry! You have no chips left.")
                 break
 
+            playing = True
             continue
         else:
             break
