@@ -104,13 +104,13 @@ class Chips:
 
     def lose_bet(self):
         """ Takes the bet amount from their winnings """
+        # This is a bit overcomplicated because you can never bet more than the total no. of chips you have
+        # but I left it in for fun :)
+
         losses = self.total - self.bet
 
         # Ensure the total never goes below 0
         self.total = max(0, losses)
-
-        # This actually doesn't matter because you can never bet more than the total number of chips you have
-        # But I left it in for fun :)
 
 def take_bet(chips):
     """ Asks the user for an integer value to bet. Will keep asking until an integer is inputted """
